@@ -1,72 +1,65 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Chatbot API",
+    "version": "0.1.0"
   },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
   "paths": {
-    "/plants": {
+    "/health": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
+        "tags": [
+          "Health"
         ],
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
+                "schema": {}
               }
             }
           },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+          "404": {
+            "description": "Not found"
           }
         }
       },
+      "head": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "operationId": "health_check_health_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/chat/invoke": {
       "post": {
-        "description": "Creates a new plant in the store",
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Retrieve response",
+        "description": "Invokes the chatbot with user input to retrieve a response.",
+        "operationId": "invoke_chat_invoke_post",
         "requestBody": {
-          "description": "Plant to add to the store",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/ChatInput"
               }
             }
           },
@@ -74,21 +67,22 @@
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
+                "schema": {}
               }
             }
           },
-          "400": {
-            "description": "unexpected error",
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -96,57 +90,1976 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
+    "/chat/stream": {
+      "post": {
+        "tags": [
+          "Chat"
         ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
+        "summary": "Stream response",
+        "description": "Streams the chatbot response as it's generated.",
+        "operationId": "stream_chat_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ChatInput"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PlatformChatInput"
+                  }
+                ],
+                "title": "Input"
+              }
+            }
           },
-          "400": {
-            "description": "unexpected error",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
           }
         }
       }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
+    },
+    "/chat/stream_itinerary_agent": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Stream itinerary agent response",
+        "description": "Streams the itinerary agent response as it's generated.",
+        "operationId": "stream_itinerary_agent_chat_stream_itinerary_agent_post",
         "requestBody": {
-          "description": "Plant added to the store",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/ItineraryChatInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/invoke_itinerary_agent": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Retrieve itinerary agent response",
+        "description": "Invokes the itinerary agent with user input to retrieve a response.",
+        "operationId": "invoke_itinerary_agent_chat_invoke_itinerary_agent_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItineraryChatInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/{agent_slugname}/invoke": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Invoke agent",
+        "description": "Invokes an agent with user input to retrieve a response.",
+        "operationId": "invoke_agent_agents__agent_slugname__invoke_post",
+        "parameters": [
+          {
+            "name": "agent_slugname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Slugname"
+            }
+          },
+          {
+            "name": "edition_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Edition Uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvokeAgentRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/{agent_slugname}/invoke_bo": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Invoke backoffice agent",
+        "description": "Invokes an backoffice agent with user input to retrieve a response.",
+        "operationId": "invoke_backoffice_agent_agents__agent_slugname__invoke_bo_post",
+        "parameters": [
+          {
+            "name": "agent_slugname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Slugname"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/{agent_slugname}/stream": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Stream agent response",
+        "description": "Streams the agent response as it's generated.",
+        "operationId": "stream_agent_agents__agent_slugname__stream_post",
+        "parameters": [
+          {
+            "name": "agent_slugname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Slugname"
+            }
+          },
+          {
+            "name": "edition_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Edition Uuid"
+            }
+          },
+          {
+            "name": "user_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "User Uuid"
+            }
+          },
+          {
+            "name": "itinerary_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Itinerary Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvokeAgentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/bo/{agent_slugname}/invoke": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Invoke backoffice agent",
+        "description": "Invokes an backoffice agent with user input to retrieve a response.",
+        "operationId": "invoke_backoffice_agent_agents_bo__agent_slugname__invoke_post",
+        "parameters": [
+          {
+            "name": "agent_slugname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Slugname"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/bo/{agent_slugname}/stream": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Stream backoffice agent response",
+        "description": "Streams the backoffice agent response as it's generated.",
+        "operationId": "stream_backoffice_agent_agents_bo__agent_slugname__stream_post",
+        "parameters": [
+          {
+            "name": "agent_slugname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Slugname"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/history/{thread_id}": {
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "summary": "Retrieve chat history",
+        "description": "Retrieves the chat history for a given thread ID.",
+        "operationId": "get_history_history__thread_id__get",
+        "parameters": [
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Thread Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "collection_uuid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Collection Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feedback": {
+      "post": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Add response feedback",
+        "description": "Registers feedback for a chatbot response.",
+        "operationId": "add_feedback_feedback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Feedback"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat-status/{collection_uuid}": {
+      "get": {
+        "tags": [
+          "Chat status"
+        ],
+        "summary": "Retrieve chat status by collection and user",
+        "description": "Retrieves the chat status for a given collection and user",
+        "operationId": "get_usage_chat_status__collection_uuid__get",
+        "parameters": [
+          {
+            "name": "collection_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections/{collection_uuid}": {
+      "get": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "Retrieve collection",
+        "description": "Retrieves the collection info for a given collection UUID.",
+        "operationId": "get_collection_collections__collection_uuid__get",
+        "parameters": [
+          {
+            "name": "collection_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Collection not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections/{collection_uuid}/upsert": {
+      "post": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "Upsert collection",
+        "description": "Upserts a collection for a given collection UUID.",
+        "operationId": "upsert_collection_collections__collection_uuid__upsert_post",
+        "parameters": [
+          {
+            "name": "collection_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upsert_collection_collections__collection_uuid__upsert_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Collection not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/super-agents/new": {
+      "post": {
+        "tags": [
+          "Super Agents"
+        ],
+        "summary": "Create super agent",
+        "description": "Creates a new super agent.",
+        "operationId": "create_new_super_agent_super_agents_new_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Request Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Create New Super Agent Super Agents New Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sdk/init": {
+      "get": {
+        "tags": [
+          "SDK"
+        ],
+        "summary": "Initialize the SDK",
+        "description": "Initializes the SDK and verifies the request.",
+        "operationId": "init_sdk_sdk_init_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/sdk/translations": {
+      "get": {
+        "tags": [
+          "SDK"
+        ],
+        "summary": "Get all translations",
+        "description": "Get all translations.",
+        "operationId": "all_sdk_translations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response All Sdk Translations Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/sdk/translations/{language}": {
+      "get": {
+        "tags": [
+          "SDK"
+        ],
+        "summary": "Get translations for a given language",
+        "description": "Get translations for a given language.",
+        "operationId": "by_language_sdk_translations__language__get",
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response By Language Sdk Translations  Language  Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audio/transcribe": {
+      "post": {
+        "tags": [
+          "Audio"
+        ],
+        "summary": "Transcribe audio",
+        "description": "Transcribes audio input and returns the text transcription.",
+        "operationId": "transcribe_audio_transcribe_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_transcribe_audio_transcribe_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/upload": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Upload file",
+        "description": "Uploads a file to the server.",
+        "operationId": "upload_files_upload_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/{file_id}": {
+      "delete": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Delete file",
+        "description": "Deletes a file from the server.",
+        "operationId": "delete_files__file_id__delete",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tts/voices": {
+      "get": {
+        "tags": [
+          "Text-to-Speech"
+        ],
+        "summary": "Get available TTS voices",
+        "description": "Retrieve a list of available text-to-speech voices grouped by language code.",
+        "operationId": "list_voices_tts_voices_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoicesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TTSError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tts/synthesize": {
+      "post": {
+        "tags": [
+          "Text-to-Speech"
+        ],
+        "summary": "Synthesize speech from text",
+        "description": "Convert text to speech using Google Cloud Text-to-Speech API. Results are cached to improve performance and reduce API calls.",
+        "operationId": "synthesize_speech_tts_synthesize_post",
+        "parameters": [
+          {
+            "name": "x-agent-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Agent-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TTSRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TTSResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TTSError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tts/audio/{filename}": {
+      "get": {
+        "tags": [
+          "Text-to-Speech"
+        ],
+        "summary": "Serve audio files",
+        "description": "Serve cached audio files generated by the TTS service.",
+        "operationId": "serve_audio_tts_audio__filename__get",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TTSError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tts/health": {
+      "get": {
+        "tags": [
+          "Text-to-Speech"
+        ],
+        "summary": "Check TTS service health",
+        "description": "Check if the Text-to-Speech service is available and properly configured.",
+        "operationId": "health_check_tts_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TTSError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/agents/{agent_uuid}/update_active": {
+      "post": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Update Agent Active Status",
+        "description": "Update the active status of an agent.\n\nParameters:\n- **agent_uuid**: UUID of the agent to update\n- **active**: JSON object containing the active status with format: {\"active\": true/false}\n\nReturns:\n- **200 OK**: Success message when active status is updated\n- **400 Bad Request**: If the active value is not a boolean\n- **500 Internal Server Error**: If the update operation fails\n\nRequires:\n- Admin authentication with \"Agent:write\" scope\n\nExample:\n```\nPOST /agents/123e4567-e89b-12d3-a456-426614174000/update_active\n{\n    \"active\": true\n}\n```",
+        "operationId": "update_agent_active_api_admin_agents__agent_uuid__update_active_post",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "Agent:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "agent_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Active"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Update Agent Active Api Admin Agents  Agent Uuid  Update Active Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/agents/all": {
+      "get": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Get All Agents Information",
+        "description": "Get detailed information about all agents.\n\nReturns:\n- **200 OK**: A list of agent information.\n- **500 Internal Server Error**: If the retrieval operation fails\n\nRequires:\n- Admin authentication with \"Agent:read\" scope\n\nResponse format:\n```json\n{\n    \"agents\": [\n        {\n            \"name\": \"Agent Name\",\n            \"slugname\": \"agent-name\",\n            \"uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n            \"description\": \"Agent description\",\n            \"active\": true,\n            \"internal\": false\n        }\n    ]\n}\n```",
+        "operationId": "get_all_agents_info_api_admin_agents_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "Agent:read"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/admin/agents/{agent_uuid}/info": {
+      "get": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Get Agent Information",
+        "description": "Get detailed information about an agent.\n\nParameters:\n- **agent_uuid**: UUID of the agent to retrieve information for\n\nReturns:\n- **200 OK**: Agent information including name, slugname, UUID, description, active status, and internal flag\n- **500 Internal Server Error**: If the retrieval operation fails\n\nRequires:\n- Admin authentication with \"Agent:read\" scope\n\nResponse format:\n```json\n{\n    \"name\": \"Agent Name\",\n    \"slugname\": \"agent-name\",\n    \"uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"description\": \"Agent description\",\n    \"active\": true,\n    \"internal\": false\n}\n```\n\nExample:\n```\nGET /agents/123e4567-e89b-12d3-a456-426614174000/info\n```",
+        "operationId": "get_agent_info_api_admin_agents__agent_uuid__info_get",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "Agent:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "agent_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/super_agents/{super_agent_uuid}/update_name": {
+      "post": {
+        "tags": [
+          "super_agents"
+        ],
+        "summary": "Update Super Agent Name",
+        "description": "Update the name of a Super Agent.\n\nParameters:\n- **super_agent_uuid**: UUID of the Super Agent to update\n- **data**: JSON object containing the new name with format: {\"name\": \"New Name\"}\n\nReturns:\n- **200 OK**: Success message when name is updated\n- **500 Internal Server Error**: Error message if update fails\n\nRequires:\n- Admin authentication with \"SuperAgent:write\" scope\n\nExample:\n```\nPOST /super_agents/123e4567-e89b-12d3-a456-426614174000/update_name\n{\n    \"name\": \"New Super Agent Name\"\n}\n```",
+        "operationId": "update_super_agent_name_api_admin_super_agents__super_agent_uuid__update_name_post",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "SuperAgent:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "super_agent_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Super Agent Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Update Super Agent Name Api Admin Super Agents  Super Agent Uuid  Update Name Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/super_agents/{super_agent_uuid}/update_avatar": {
+      "post": {
+        "tags": [
+          "super_agents"
+        ],
+        "summary": "Update Super Agent Avatar",
+        "description": "Upload and update the avatar image for a Super Agent.\n\nParameters:\n- **super_agent_uuid**: UUID of the Super Agent to update\n- **avatar**: Image file to upload (supported formats: JPEG, PNG, GIF)\n- **X-Tenant-Id**: Required header specifying the tenant ID\n\nReturns:\n- **200 OK**: Success message when avatar is updated\n- **500 Internal Server Error**: Error message if update fails\n\nRequires:\n- Admin authentication with \"SuperAgent:write\" scope\n- X-Tenant-Id header must be present in the request\n\nExample:\n```\nPOST /super_agents/123e4567-e89b-12d3-a456-426614174000/update_avatar\nContent-Type: multipart/form-data\nX-Tenant-Id: tenant123\n\nForm data:\n- avatar: [binary file data]\n```",
+        "operationId": "update_super_agent_avatar_api_admin_super_agents__super_agent_uuid__update_avatar_post",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "SuperAgent:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "super_agent_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Super Agent Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_update_super_agent_avatar_api_admin_super_agents__super_agent_uuid__update_avatar_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Update Super Agent Avatar Api Admin Super Agents  Super Agent Uuid  Update Avatar Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/super_agents/{super_agent_uuid}/update_temperature": {
+      "post": {
+        "tags": [
+          "super_agents"
+        ],
+        "summary": "Update Super Agent Temperature",
+        "description": "Update the temperature setting for a Super Agent.\n\nParameters:\n- **super_agent_uuid**: UUID of the Super Agent to update\n- **temperature**: JSON object containing the new temperature value with format: {\"temperature\": 0.7}\n- **X-Tenant-Id**: Required header specifying the tenant ID\n\nReturns:\n- **200 OK**: Success message when temperature is updated\n- **500 Internal Server Error**: Error message if update fails\n\nRequires:\n- Admin authentication with \"SuperAgent:write\" scope\n- Temperature must be a float between 0 and 1\n\nExample:\n```\nPOST /super_agents/123e4567-e89b-12d3-a456-426614174000/update_temperature\n{\n    \"temperature\": 0.7\n}\n```",
+        "operationId": "update_super_agent_temperature_api_admin_super_agents__super_agent_uuid__update_temperature_post",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "SuperAgent:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "super_agent_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Super Agent Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Temperature"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Update Super Agent Temperature Api Admin Super Agents  Super Agent Uuid  Update Temperature Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/super_agents/{super_agent_uuid}/update_tone": {
+      "post": {
+        "tags": [
+          "super_agents"
+        ],
+        "summary": "Update Super Agent Tone",
+        "description": "Update the tone setting for a Super Agent.\n\nParameters:\n- **super_agent_uuid**: UUID of the Super Agent to update\n- **tone**: JSON object containing the new tone value with format: {\"tone\": \"friendly\"}\n- **X-Tenant-Id**: Required header specifying the tenant ID\n\nReturns:\n- **200 OK**: Success message when tone is updated\n- **400 Bad Request**: Error message if tone is invalid\n- **500 Internal Server Error**: Error message if update fails\n\nRequires:\n- Admin authentication with \"SuperAgent:write\" scope\n\nExample:\n```\nPOST /super_agents/123e4567-e89b-12d3-a456-426614174000/update_tone\n{\n    \"tone\": \"professional\"\n}\n```",
+        "operationId": "update_super_agent_tone_api_admin_super_agents__super_agent_uuid__update_tone_post",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "SuperAgent:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "super_agent_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Super Agent Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Tone"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Update Super Agent Tone Api Admin Super Agents  Super Agent Uuid  Update Tone Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/super_agents/{super_agent_uuid}/info": {
+      "get": {
+        "tags": [
+          "super_agents"
+        ],
+        "summary": "Get Super Agent Information",
+        "description": "Get detailed information about a Super Agent.\n\nParameters:\n- **super_agent_uuid**: UUID of the Super Agent to retrieve information for\n- **X-Tenant-Id**: Required header specifying the tenant ID\n\nReturns:\n- **200 OK**: Super Agent information including name, slugname, UUID, active status,\n             temperature, avatar, and tone\n- **500 Internal Server Error**: Error message if retrieval fails\n\nRequires:\n- Admin authentication with \"SuperAgent:read\" scope\n\nResponse format:\n```json\n{\n    \"name\": \"Agent Name\",\n    \"slugname\": \"agent-name\",\n    \"uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"active\": true,\n    \"temperature\": 0.7,\n    \"avatar\": \"https://example.com/avatar.png\",\n    \"tone\": \"professional\"\n}\n```",
+        "operationId": "get_super_agent_info_api_admin_super_agents__super_agent_uuid__info_get",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "SuperAgent:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "super_agent_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Super Agent Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/super_agents/all": {
+      "get": {
+        "tags": [
+          "super_agents"
+        ],
+        "summary": "Get All Active Super Agents Information",
+        "description": "Get detailed information about all active Super Agents.\n\nReturns:\n- **200 OK**: A list of Super Agent information including name, slugname, UUID, active status,\n             temperature, avatar, and tone\n- **500 Internal Server Error**: Error message if retrieval fails\n\nRequires:\n- Admin authentication with \"SuperAgent:read\" scope\n\nResponse format:\n```json\n{\n    \"super_agents\": [\n        {\n            \"name\": \"Agent Name\",\n            \"slugname\": \"agent-name\",\n            \"uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n            \"active\": true,\n            \"temperature\": 0.7,\n            \"avatar\": \"https://example.com/avatar.png\",\n            \"tone\": \"professional\"\n        }\n    ]\n}\n```",
+        "operationId": "get_all_active_super_agents_info_api_admin_super_agents_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "SuperAgent:read"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/admin/templates/{model_id}/{slug}/update_custom_value": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Update Template Custom Value",
+        "description": "Update the custom value for a specific template.\n\nParameters:\n- **model_id**: ID of the model associated with the template\n- **slug**: Unique slug identifier for the template\n- **value**: JSON object containing the new custom value with format: {\"value\": \"New custom value\"}\n\nReturns:\n- **200 OK**: Success message when custom value is updated\n- **500 Internal Server Error**: Error message if update fails\n\nRequires:\n- Admin authentication with \"Template:write\" scope\n\nExample:\n```\nPOST /templates/1/greeting/update_custom_value\n{\n    \"value\": \"Friendly and engaging.\"\n}\n```",
+        "operationId": "update_template_custom_value_api_admin_templates__model_id___slug__update_custom_value_post",
+        "security": [
+          {
+            "Oauth2ClientCredentials": [
+              "Template:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Model Id"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Value"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Update Template Custom Value Api Admin Templates  Model Id   Slug  Update Custom Value Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/token": {
+      "post": {
+        "tags": [
+          "admin-auth"
+        ],
+        "summary": "Get access token using client credentials",
+        "description": "Authenticate using client credentials and get an access token.\n\nThis endpoint implements the OAuth2 client credentials flow. It validates the provided\nclient credentials against the database and returns a JWT token if valid.\n\nParameters:\n- **client_id**: Client identifier (required)\n- **client_secret**: Client secret for authentication (required)\n\nReturns:\n- **200 OK**: JWT token with expiration time\n- **401 Unauthorized**: If client credentials are invalid\n\nResponse format:\n```json\n{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"expires_at\": \"2023-04-01T12:00:00\"\n}\n```\n\nExample usage:\n```\nPOST /auth/token\nContent-Type: application/x-www-form-urlencoded\n\nclient_id=your_client_id&client_secret=your_client_secret&tenant_id=tenant123&user_id=user456\n```",
+        "operationId": "get_client_token_api_admin_auth_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_get_client_token_api_admin_auth_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/login": {
+      "post": {
+        "tags": [
+          "admin-auth"
+        ],
+        "summary": "Login using credentials",
+        "description": "Login using username and password",
+        "operationId": "credentials_login_api_admin_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_credentials_login_api_admin_auth_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/sso": {
+      "post": {
+        "tags": [
+          "admin-auth"
+        ],
+        "summary": "Login using SSO",
+        "description": "Login using SSO",
+        "operationId": "sso_login_api_admin_auth_sso_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_sso_login_api_admin_auth_sso_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/refresh": {
+      "post": {
+        "tags": [
+          "admin-auth"
+        ],
+        "summary": "Refresh access token using a refresh token",
+        "description": "Exchange a valid refresh token for a new access token.",
+        "operationId": "refresh_token_api_admin_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/users": {
+      "post": {
+        "tags": [
+          "admin-auth"
+        ],
+        "summary": "Create a new admin user",
+        "description": "Create a new admin user",
+        "operationId": "create_admin_user_api_admin_auth_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdminUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
         }
       }
@@ -154,63 +2067,1046 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
+      "AdminToken": {
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "token": {
+            "type": "string",
+            "title": "Token"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
           }
-        ]
-      },
-      "Error": {
+        },
+        "type": "object",
         "required": [
-          "error",
+          "token",
+          "refresh_token",
+          "expires_at"
+        ],
+        "title": "AdminToken"
+      },
+      "AudioEncoding": {
+        "type": "string",
+        "enum": [
+          "MP3",
+          "LINEAR16",
+          "OGG_OPUS"
+        ],
+        "title": "AudioEncoding",
+        "description": "Available audio encoding formats for TTS output."
+      },
+      "Body_credentials_login_api_admin_auth_login_post": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_credentials_login_api_admin_auth_login_post"
+      },
+      "Body_get_client_token_api_admin_auth_token_post": {
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "type": "string",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_id",
+          "client_secret"
+        ],
+        "title": "Body_get_client_token_api_admin_auth_token_post"
+      },
+      "Body_sso_login_api_admin_auth_sso_post": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "provider"
+        ],
+        "title": "Body_sso_login_api_admin_auth_sso_post"
+      },
+      "Body_transcribe_audio_transcribe_post": {
+        "properties": {
+          "audio": {
+            "type": "string",
+            "format": "binary",
+            "title": "Audio",
+            "description": "Audio file to transcribe"
+          }
+        },
+        "type": "object",
+        "required": [
+          "audio"
+        ],
+        "title": "Body_transcribe_audio_transcribe_post"
+      },
+      "Body_update_super_agent_avatar_api_admin_super_agents__super_agent_uuid__update_avatar_post": {
+        "properties": {
+          "avatar": {
+            "type": "string",
+            "format": "binary",
+            "title": "Avatar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "avatar"
+        ],
+        "title": "Body_update_super_agent_avatar_api_admin_super_agents__super_agent_uuid__update_avatar_post"
+      },
+      "Body_upsert_collection_collections__collection_uuid__upsert_post": {
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "super_agent_uuid": {
+            "type": "string",
+            "title": "Super Agent Uuid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "active",
+          "super_agent_uuid"
+        ],
+        "title": "Body_upsert_collection_collections__collection_uuid__upsert_post"
+      },
+      "ChatInput": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "User input to the chatbot.",
+            "examples": [
+              "What does the __init__ method do?"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata",
+            "description": "Metadata to pass to the chatbot. Accepts either a dictionary or a JSON string.",
+            "default": {},
+            "examples": [
+              {
+                "key": "value"
+              },
+              "{\"key\": \"value\"}"
+            ]
+          },
+          "collection_uuid": {
+            "type": "string",
+            "title": "Collection Uuid",
+            "description": "Collection UUID to use for the chatbot.",
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          },
+          "user_uuid": {
+            "type": "string",
+            "title": "User Uuid",
+            "description": "User UUID to use for the chatbot.",
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          },
+          "thread_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thread Id",
+            "description": "Thread ID to persist and continue a multi-turn conversation.",
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          },
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Files",
+            "description": "List of file IDs to attach to the message.",
+            "default": [],
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
           "message"
         ],
-        "type": "object",
+        "title": "ChatInput",
+        "description": "Basic user chat input for the chatbot"
+      },
+      "ChatStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ],
+        "title": "ChatStatus"
+      },
+      "ChatStatusCode": {
+        "type": "string",
+        "enum": [
+          "global_limit_exceeded",
+          "user_limit_exceeded",
+          "user_collection_limit_exceeded",
+          "user_in_limit"
+        ],
+        "title": "ChatStatusCode"
+      },
+      "ChatStatusResponse": {
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "code": {
+            "$ref": "#/components/schemas/ChatStatusCode"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChatStatus"
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "title": "Message"
           }
-        }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "status",
+          "message"
+        ],
+        "title": "ChatStatusResponse"
+      },
+      "CollectionResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "status",
+          "data"
+        ],
+        "title": "CollectionResponse",
+        "description": "Response model for collection data"
+      },
+      "CreateAdminUserRequest": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "surnames": {
+            "type": "string",
+            "title": "Surnames"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Roles"
+          },
+          "config": {
+            "type": "object",
+            "title": "Config"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "name",
+          "surnames",
+          "username",
+          "email",
+          "password"
+        ],
+        "title": "CreateAdminUserRequest"
+      },
+      "DeleteResponse": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code",
+            "description": "Response status code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Response message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "DeleteResponse"
+      },
+      "Feedback": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id",
+            "description": "Run ID of the message."
+          },
+          "collection_uuid": {
+            "type": "string",
+            "title": "Collection Uuid",
+            "description": "Collection UUID of the message."
+          },
+          "helpful": {
+            "type": "boolean",
+            "title": "Helpful",
+            "description": "Whether the answer was helpful or not."
+          },
+          "feedback": {
+            "type": "string",
+            "title": "Feedback",
+            "description": "Feedback on the answer."
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "collection_uuid",
+          "helpful",
+          "feedback"
+        ],
+        "title": "Feedback",
+        "description": "Feedback for a message."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InvokeAgentRequest": {
+        "properties": {
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "video_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video Url"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime Type"
+          }
+        },
+        "type": "object",
+        "title": "InvokeAgentRequest"
+      },
+      "ItineraryChatInput": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "User input to the chatbot.",
+            "examples": [
+              "What does the __init__ method do?"
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Metadata to pass to the chatbot. Accepts either a dictionary or a JSON string.",
+            "default": {},
+            "examples": [
+              {
+                "key": "value"
+              },
+              "{\"key\": \"value\"}"
+            ]
+          },
+          "collection_uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collection Uuid",
+            "description": "Collection UUID to use for the chatbot.",
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          },
+          "user_uuid": {
+            "type": "string",
+            "title": "User Uuid",
+            "description": "User UUID to use for the chatbot.",
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          },
+          "thread_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thread Id",
+            "description": "Thread ID to persist and continue a multi-turn conversation.",
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          },
+          "itinerary_uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Itinerary Uuid",
+            "description": "Itinerary UUID to use for the chatbot.",
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          },
+          "base_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Url",
+            "description": "base url to use for the chatbot.",
+            "examples": [
+              "https://pasaporteia.foxizecloud.local/foxdev.php"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "ItineraryChatInput",
+        "description": "Basic user chat input for the chatbot"
+      },
+      "PlatformChatInput": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "User input to the chatbot."
+          },
+          "user_uuid": {
+            "type": "string",
+            "title": "User Uuid",
+            "description": "User UUID to use for the chatbot."
+          },
+          "collection_uuid": {
+            "type": "string",
+            "title": "Collection Uuid",
+            "description": "Collection UUID to use for the chatbot.",
+            "default": "platform"
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata",
+            "description": "Metadata to pass to the chatbot. Accepts either a dictionary or a JSON string.",
+            "default": {},
+            "examples": [
+              {
+                "key": "value"
+              },
+              "{\"key\": \"value\"}"
+            ]
+          },
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Files",
+            "description": "List of file IDs to attach to the message.",
+            "default": [],
+            "examples": [
+              "847c6285-8fc9-4560-a83f-4e6285809254"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "user_uuid"
+        ],
+        "title": "PlatformChatInput",
+        "description": "Platform chat input for the chatbot"
+      },
+      "RefreshTokenRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshTokenRequest"
+      },
+      "TTSError": {
+        "properties": {
+          "error": {
+            "type": "string",
+            "title": "Error",
+            "description": "Error message",
+            "examples": [
+              "Text-to-Speech service is not available"
+            ]
+          },
+          "error_code": {
+            "type": "string",
+            "title": "Error Code",
+            "description": "Error code for programmatic handling",
+            "examples": [
+              "SERVICE_UNAVAILABLE",
+              "INVALID_REQUEST",
+              "QUOTA_EXCEEDED"
+            ]
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details",
+            "description": "Additional error details",
+            "examples": [
+              "Google TTS API quota exceeded"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "error",
+          "error_code"
+        ],
+        "title": "TTSError",
+        "description": "Error response model for TTS operations."
+      },
+      "TTSRequest": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id",
+            "description": "Unique identifier for this TTS request, used for file naming",
+            "examples": [
+              "abc123-def456-ghi789"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Text",
+            "description": "Text to synthesize into speech",
+            "examples": [
+              "Hello, this is a test message for text-to-speech synthesis."
+            ]
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Language preference for automatic voice selection (e.g., 'es', 'en', 'fr')",
+            "examples": [
+              "es",
+              "en",
+              "fr",
+              "de"
+            ]
+          },
+          "language_code": {
+            "type": "string",
+            "title": "Language Code",
+            "description": "Language code for the voice (used if language is not provided)",
+            "default": "en-US",
+            "examples": [
+              "en-US",
+              "es-ES",
+              "fr-FR",
+              "de-DE"
+            ]
+          },
+          "voice_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice Name",
+            "description": "Specific voice name to use (optional, overrides language-based selection)",
+            "examples": [
+              "en-US-Wavenet-D",
+              "es-ES-Wavenet-B"
+            ]
+          },
+          "voice_gender": {
+            "$ref": "#/components/schemas/VoiceGender",
+            "description": "Gender of the voice to use",
+            "default": "NEUTRAL"
+          },
+          "speaking_rate": {
+            "type": "number",
+            "maximum": 4.0,
+            "minimum": 0.25,
+            "title": "Speaking Rate",
+            "description": "Speaking rate/speed (0.25 to 4.0)",
+            "default": 1.0,
+            "examples": [
+              0.8,
+              1.0,
+              1.2
+            ]
+          },
+          "pitch": {
+            "type": "number",
+            "maximum": 20.0,
+            "minimum": -20.0,
+            "title": "Pitch",
+            "description": "Voice pitch adjustment (-20.0 to 20.0)",
+            "default": 0.0,
+            "examples": [
+              -2.0,
+              0.0,
+              2.0
+            ]
+          },
+          "volume_gain_db": {
+            "type": "number",
+            "maximum": 16.0,
+            "minimum": -96.0,
+            "title": "Volume Gain Db",
+            "description": "Volume gain in decibels (-96.0 to 16.0)",
+            "default": 0.0,
+            "examples": [
+              -6.0,
+              0.0,
+              6.0
+            ]
+          },
+          "audio_encoding": {
+            "$ref": "#/components/schemas/AudioEncoding",
+            "description": "Output audio format",
+            "default": "MP3"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "text"
+        ],
+        "title": "TTSRequest",
+        "description": "Request model for text-to-speech synthesis."
+      },
+      "TTSResponse": {
+        "properties": {
+          "audio_url": {
+            "type": "string",
+            "title": "Audio Url",
+            "description": "URL to access the generated audio file",
+            "examples": [
+              "http://localhost:8000/api/v1/tts/audio/abc123.mp3"
+            ]
+          },
+          "audio_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audio Content",
+            "description": "Base64 encoded audio content (optional)"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds",
+            "description": "Estimated duration of the audio in seconds",
+            "examples": [
+              5.2,
+              12.8
+            ]
+          },
+          "cache_hit": {
+            "type": "boolean",
+            "title": "Cache Hit",
+            "description": "Whether the result was served from cache",
+            "examples": [
+              true,
+              false
+            ]
+          },
+          "voice_used": {
+            "type": "string",
+            "title": "Voice Used",
+            "description": "The actual voice that was used for synthesis",
+            "examples": [
+              "en-US-Wavenet-D",
+              "en-US-NEUTRAL"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "audio_url",
+          "cache_hit",
+          "voice_used"
+        ],
+        "title": "TTSResponse",
+        "description": "Response model for text-to-speech synthesis."
+      },
+      "UploadRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Name of the file"
+          },
+          "data": {
+            "type": "string",
+            "title": "Data",
+            "description": "File in base64 format"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "data"
+        ],
+        "title": "UploadRequest"
+      },
+      "UploadResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique identifier for the uploaded file"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Name of the uploaded file"
+          },
+          "uploadedAt": {
+            "type": "string",
+            "title": "Uploadedat",
+            "description": "Timestamp of the uploaded file"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "uploadedAt"
+        ],
+        "title": "UploadResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VoiceGender": {
+        "type": "string",
+        "enum": [
+          "MALE",
+          "FEMALE",
+          "NEUTRAL"
+        ],
+        "title": "VoiceGender",
+        "description": "Available voice genders for TTS synthesis."
+      },
+      "VoiceInfo": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Voice name",
+            "examples": [
+              "en-US-Wavenet-D"
+            ]
+          },
+          "gender": {
+            "type": "string",
+            "title": "Gender",
+            "description": "Voice gender",
+            "examples": [
+              "MALE",
+              "FEMALE",
+              "NEUTRAL"
+            ]
+          },
+          "natural_sample_rate": {
+            "type": "integer",
+            "title": "Natural Sample Rate",
+            "description": "Natural sample rate in Hz",
+            "examples": [
+              24000,
+              22050
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "gender",
+          "natural_sample_rate"
+        ],
+        "title": "VoiceInfo",
+        "description": "Information about an available TTS voice."
+      },
+      "VoicesResponse": {
+        "properties": {
+          "voices": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/VoiceInfo"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Voices",
+            "description": "Available voices grouped by language code",
+            "examples": [
+              {
+                "en-US": [
+                  {
+                    "gender": "MALE",
+                    "name": "en-US-Wavenet-A",
+                    "natural_sample_rate": 24000
+                  },
+                  {
+                    "gender": "FEMALE",
+                    "name": "en-US-Wavenet-B",
+                    "natural_sample_rate": 24000
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "voices"
+        ],
+        "title": "VoicesResponse",
+        "description": "Response model for listing available voices."
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "Oauth2ClientCredentials": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "scopes": {
+              "SuperAgent:write": "Write super agent changes",
+              "SuperAgent:read": "Read super agent info",
+              "Agent:write": "Write agent changes",
+              "Agent:read": "Read agent info",
+              "Template:write": "Write template changes",
+              "Template:read": "Read template info"
+            },
+            "tokenUrl": "/api/admin/auth/token"
+          }
+        }
       }
     }
   }

@@ -105,6 +105,7 @@
       "href": "https://dashboard.mintlify.com"
     }
   },
+  "openapi": "/api-reference/openapi.json",
   "contextual": {
     "options": [
      "copy",
