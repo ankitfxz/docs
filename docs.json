@@ -11,11 +11,11 @@
   "navigation": {
     "groups": [
       {
-        "group": "API reference", 
-        "pages": [
-          "docs/api-reference/introduction",
-          "docs/api-reference/endpoints"
-        ]
+        "group": "Endpoints",
+        "openapi": {
+          "source": "/api-reference/openapi.json",
+          "directory": "api-reference"
+        }
       }
     ]
   },
