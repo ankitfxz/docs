@@ -9,25 +9,12 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
+        "group": "API reference", 
+        "pages": [
+          "docs/api-reference/introduction",
+          "docs/api-reference/endpoints"
         ]
       }
     ]
@@ -43,5 +30,5 @@
       "href": "https://dashboard.mintlify.com"
     }
   },
-  "openapi": "/api-reference/openapi.json"
+  "openapi": "openapi.json"
 }
